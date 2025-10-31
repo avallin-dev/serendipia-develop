@@ -1,0 +1,34 @@
+name: Deploy to VPS
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    if: "!contains(github.event.commits[0].message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+      - name: Deploy to VPS
+        run: |
+          sshpass -p ${{ secrets.SERVER_PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }} << 'EOF'
+            . ~/.bashrc || true
+            . ~/.profile || true
+            export PATH=$PATH:/root/.nvm/versions/node/v20.14.0/bin
+
+            cd /home/serendipia
+            git pull origin master
+            pm2 stop all
+            pm2 delete all
+            if [[ "$(git log -1 --pretty=%B)" == *"push"* ]]; then
+              npx prisma db push
+            else
+              npx prisma generate
+            fi
+            npm run build
+            pm2 start npm -- start
+            sudo systemctl restart nginx
+          EOF

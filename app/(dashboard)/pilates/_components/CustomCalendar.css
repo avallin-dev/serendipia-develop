@@ -1,0 +1,19 @@
+.day-calendar .rbc-event-label {
+  display: none;
+}
+
+.day-calendar .rbc-time-content .rbc-timeslot-group:nth-child(n + 4):nth-child(-n + 6) {
+  background-color: gray;
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.day-calendar .rbc-time-content .rbc-timeslot-group:nth-child(n + 4):nth-child(-n + 6) .rbc-time-slot {
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.day-calendar .rbc-day-slot .rbc-event-content {
+  font-size: 10px;
+}

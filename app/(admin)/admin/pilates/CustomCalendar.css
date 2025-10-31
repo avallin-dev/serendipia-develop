@@ -1,0 +1,106 @@
+.pilates-calendar .rbc-time-view .rbc-time-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pilates-calendar .rbc-time-view .rbc-time-content::-webkit-scrollbar-thumb {
+  background: #8f8302;
+}
+
+.pilates-calendar .rbc-event-label {
+  display: none;
+}
+
+.pilates-calendar .rbc-allday-cell {
+  display: none;
+}
+
+.pilates-calendar .rbc-allday-events {
+  display: none;
+}
+
+.pilates-calendar .rbc-header {
+  background-color: #ffff00 !important;
+  color: #333;
+  text-align: center;
+  font-weight: bold;
+}
+
+.pilates-calendar .rbc-time-header.rbc-overflowing {
+  border-right: 1px solid #333;
+}
+
+.pilates-calendar .rbc-time-content {
+  border-top: 2px solid #333;
+}
+
+.pilates-calendar .rbc-time-view .rbc-time-gutter {
+  background-color: #ff5757;
+}
+
+.pilates-calendar .rbc-timeslot-group {
+  min-height: 240px;
+  border-bottom-width: 5px;
+  border-bottom-color: #d1bf00;
+}
+
+.pilates-calendar .rbc-time-content > * + * > * {
+  border-left-color: #fff;
+  border-left-width: 5px;
+}
+
+.pilates-calendar .rbc-event {
+  margin-bottom: 5px;
+  display: block;
+  border-radius: 0;
+}
+
+.pilates-calendar .rbc-day-slot .rbc-event,
+.pilates-calendar .rbc-day-slot .rbc-background-event {
+  position: absolute;
+  font-size: 12px;
+  text-align: center;
+  font-weight: 500;
+  padding: 0;
+  width: 100% !important;
+  left: 0% !important;
+}
+
+.pilates-calendar .rbc-day-slot .rbc-event-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pilates-calendar .rbc-current-time-indicator {
+  display: none;
+}
+
+.pilates-calendar .rbc-time-content .rbc-timeslot-group:nth-child(n + 4):nth-child(-n + 6) {
+  background-color: gray;
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pilates-calendar .rbc-time-content .rbc-timeslot-group:nth-child(n + 4):nth-child(-n + 6) .rbc-time-slot {
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.pilates-calendar .rbc-day-slot .rbc-events-container {
+  margin-right: 0;
+}
+
+.pilates-calendar {
+  height: 80vh;
+}
+
+@media (max-width: 768px) {
+  .pilates-calendar {
+    height: auto;
+  }
+
+  .pilates-calendar .rbc-toolbar {
+    row-gap: 15px;
+  }
+}

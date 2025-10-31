@@ -1,0 +1,20 @@
+# Directories
+node_modules/
+.github/
+.vscode/
+.husky/
+dist/
+.idx/
+@/
+
+# Files
+Dockerfile
+Jenkinsfile
+npm-debug.log
+README.md
+.eslintrc.json
+.dockerignore
+.env.example
+.gitignore
+.next
+.git

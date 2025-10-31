@@ -1,0 +1,846 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model categoria_ej {
+  idCategoria Int          @id @default(autoincrement())
+  nombreCat   String?      @db.VarChar(30)
+  ejercicios  ejercicios[]
+}
+
+model clase {
+  id            Int              @id @default(autoincrement())
+  nombre        String?          @db.VarChar(100)
+  descripcion   String?          @db.VarChar(1000)
+  idEstado      Int?
+  horaInicio    DateTime?        @db.DateTime(0)
+  horaFin       DateTime?        @db.DateTime(0)
+  cupo          Int?
+  idUsuarioCreo Int?
+  lunes         clase_lunes?
+  martes        clase_martes?
+  miercoles     clase_miercoles?
+  jueves        clase_jueves?
+  viernes       clase_viernes?
+  sabado        clase_sabado?
+  domingo       clase_domingo?
+  fechaCreacion DateTime?        @db.DateTime(0)
+  estado        estado?          @relation(fields: [idEstado], references: [idEstados], onDelete: NoAction, onUpdate: NoAction, map: "f_clase_estado")
+  usuario       usuario?         @relation(fields: [idUsuarioCreo], references: [idUsuario], onDelete: NoAction, onUpdate: NoAction, map: "f_clase_usuario")
+  clase_socio   clase_socio[]
+
+  @@index([idEstado], map: "i_clase_estado")
+  @@index([idUsuarioCreo], map: "i_clase_usuario")
+}
+
+model clase_socio {
+  id      Int    @id @default(autoincrement())
+  idClase Int?
+  idSocio Int?
+  clase   clase? @relation(fields: [idClase], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "f_clasesocio_clase")
+  socio   socio? @relation(fields: [idSocio], references: [idSocio], onDelete: Cascade, onUpdate: NoAction, map: "f_clasesocio_socio")
+
+  @@index([idSocio], map: "i_clasesocio_clase")
+  @@index([idClase], map: "i_clasesocio_socio")
+}
+
+model cmodulo {
+  id         Int          @id @default(autoincrement())
+  nombre     String?      @db.VarChar(255)
+  rol_modulo rol_modulo[]
+}
+
+model configuracion {
+  idConfiguracion            Int       @id @default(autoincrement())
+  NombreGimnacio             String?   @db.VarChar(45)
+  Domicilio                  String?   @db.VarChar(200)
+  Telefono                   String?   @db.VarChar(45)
+  Logo                       Bytes?
+  fechaModificacion          DateTime? @db.DateTime(0)
+  idUsuarioModifico          Int?
+  mensajeVencimiento         Int?
+  RFC                        String?   @db.VarChar(45)
+  Mensaje                    String?   @db.VarChar(100)
+  FondoRegistro              Bytes?
+  UsuarioSMTP                String?   @db.VarChar(100)
+  PasswordSMTP               String?   @db.VarChar(255)
+  enviaMailVencimiento       Int?      @default(0) @db.TinyInt
+  enviaMailCumpleanos        Int?      @default(0) @db.TinyInt
+  puertoCOMArduino           String?   @db.VarChar(20)
+  ticketFooter               String?   @db.VarChar(2000)
+  ticketAncho                Int?
+  ticketFontHeaderSize       Int?
+  ticketHeaderLineHeigth     Int?
+  ticketFontSize             Int?
+  ticketLineHeight           Int?
+  ticketFontName             String?   @db.VarChar(50)
+  ticketSectionSpace         Int?
+  ticketPercentageWidthImage Decimal?  @db.Decimal(6, 2)
+  existPrinter               Int?
+  folderBackup               String?   @db.VarChar(1000)
+  autoSerialPort             Boolean   @default(false)
+  puertoCOMLector            String?   @db.VarChar(12)
+  color0                     Int?
+  color1                     Int?
+  color2                     Int?
+  folderFoto                 String?   @db.VarChar(100)
+  cantidadBaja               Int       @default(20)
+  cantidadAlta               Int       @default(60)
+  cantidadActual             Int
+  formularyTitle             String?   @db.VarChar(100)
+  instrucciones              String?   @db.VarChar(1000)
+}
+
+model control_backup {
+  id    Int       @id @default(autoincrement())
+  fecha DateTime? @db.DateTime(0)
+}
+
+model control_mail {
+  id    Int       @id @default(autoincrement())
+  fecha DateTime? @db.DateTime(0)
+}
+
+model ctipomembresia {
+  id             Int              @id @default(autoincrement())
+  nombre         String?          @db.VarChar(20)
+  membresia      membresia[]
+  sociomembresia sociomembresia[]
+}
+
+model detalleentrada {
+  idDetalleEntrada Int            @id @default(autoincrement())
+  idProducto       Int?
+  CostoUnitario    Decimal?       @db.Decimal(8, 2)
+  idEntrada        Int?
+  idDetalleSalida  Int?
+  entrada          entrada?       @relation(fields: [idEntrada], references: [idEntrada], onDelete: Cascade, onUpdate: NoAction, map: "fk_DetalleEntrada_Entrada1")
+  producto         producto?      @relation(fields: [idProducto], references: [idProducto], onDelete: Cascade, onUpdate: NoAction, map: "fk_DetalleEntrada_Producto1")
+  detallesalida    detallesalida? @relation(fields: [idDetalleSalida], references: [iddetalleSalida], onUpdate: NoAction, map: "fk_DetalleEntrada_detalleSalida1")
+
+  @@index([idEntrada], map: "fk_DetalleEntrada_Entrada1")
+  @@index([idProducto], map: "fk_DetalleEntrada_Producto1")
+  @@index([idDetalleSalida], map: "fk_DetalleEntrada_detalleSalida1")
+}
+
+model detallesalida {
+  iddetalleSalida Int              @id @default(autoincrement())
+  idProducto      Int?
+  precioUnitario  Decimal?         @db.Decimal(8, 2)
+  idSalida        Int?
+  detalleentrada  detalleentrada[]
+  producto        producto?        @relation(fields: [idProducto], references: [idProducto], onDelete: NoAction, onUpdate: NoAction, map: "fk_detalleSalida_Producto1")
+  salida          salida?          @relation(fields: [idSalida], references: [idSalida], onDelete: Cascade, onUpdate: NoAction, map: "fk_detalleSalida_Salida1")
+
+  @@index([idProducto], map: "fk_detalleSalida_Producto1")
+  @@index([idSalida], map: "fk_detalleSalida_Salida1")
+}
+
+model ejercicios {
+  idEjercicio      Int                @id @default(autoincrement())
+  nombreEj         String?            @db.VarChar(100)
+  linkEj           String?            @db.VarChar(100)
+  idCategoria      Int
+  Comentario       String?            @db.VarChar(100)
+  foto             String?            @db.VarChar(100)
+  categoria_ej     categoria_ej       @relation(fields: [idCategoria], references: [idCategoria], onDelete: NoAction, onUpdate: NoAction, map: "fk_CategoriaEj_NombreCat")
+  rutina_ejercicio rutina_ejercicio[]
+
+  @@index([idCategoria], map: "fk_CategoriaEj_NombreCat")
+}
+
+model entrada {
+  idEntrada      Int              @id @default(autoincrement())
+  idEstado       Int?             @default(1)
+  fechaCreacion  DateTime?        @db.DateTime(0)
+  idUsuarioCreo  Int?
+  Total          Decimal?         @db.Decimal(8, 2)
+  detalleentrada detalleentrada[]
+  estado         estado?          @relation(fields: [idEstado], references: [idEstados], onDelete: NoAction, onUpdate: NoAction, map: "fk_Entrada_Estado1")
+  usuario        usuario?         @relation(fields: [idUsuarioCreo], references: [idUsuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_Entrada_Usuario1")
+
+  @@index([idEstado], map: "fk_Entrada_Estado1")
+  @@index([idUsuarioCreo], map: "fk_Entrada_Usuario1")
+}
+
+model estado {
+  idEstados                     Int                   @id @default(autoincrement())
+  Estado                        String?               @db.VarChar(45)
+  clase                         clase[]
+  entrada                       entrada[]
+  membresia                     membresia[]
+  producto                      producto[]
+  rol_rol_idEstadoToestado      rol[]                 @relation("rol_idEstadoToestado")
+  rol_rol_idUsuarioCreoToestado rol[]                 @relation("rol_idUsuarioCreoToestado")
+  salida                        salida[]
+  socio                         socio[]
+  socio_muestra                 socio_muestra[]
+  sociomembresia                sociomembresia[]
+  sociomembresia_pago           sociomembresia_pago[]
+  usuario                       usuario[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model membresia {
+  idMembresia     Int              @id @default(autoincrement())
+  Nombre          String?          @db.VarChar(45)
+  idEstado        Int?
+  fechaCreacion   DateTime?        @db.DateTime(0)
+  Precio          Decimal?         @db.Decimal(8, 2)
+  idUsuarioCreo   Int?
+  meses           Int?             @default(0)
+  horaInicio      DateTime?        @db.Time(0)
+  horaFinal       DateTime?        @db.Time(0)
+  idTipoMembresia Int?             @default(1)
+  semanas         Int?             @default(0)
+  dias            Int?             @default(0)
+  ctipomembresia  ctipomembresia?  @relation(fields: [idTipoMembresia], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_Membresia_CtipoMembresia")
+  estado          estado?          @relation(fields: [idEstado], references: [idEstados], onDelete: NoAction, onUpdate: NoAction, map: "fk_Membresia_Estado1")
+  usuario         usuario?         @relation(fields: [idUsuarioCreo], references: [idUsuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_Membresia_Usuario1")
+  sociomembresia  sociomembresia[]
+
+  @@index([idTipoMembresia], map: "fk_Membresia_CtipoMembresia")
+  @@index([idEstado], map: "fk_Membresia_Estado1")
+  @@index([idUsuarioCreo], map: "fk_Membresia_Usuario1")
+}
+
+model plan {
+  idPlan           Int                @id @default(autoincrement())
+  NombrePlan       String             @db.VarChar(50)
+  idUsuario        Int?
+  fechaCreacion    DateTime?          @db.DateTime(0)
+  idSocio          Int?
+  idLink           Int?
+  dias             Int?
+  semanas          Int?
+  diaactual        Int?               @default(0)
+  fechamod         DateTime?          @db.DateTime(0)
+  semanaactual     Int?               @default(0)
+  type_of_training type_of_training?  @default(Desconocido)
+  comments         String?            @db.VarChar(500)
+  state            state_of_training? @default(en_proceso)
+  public_comment   String?            @db.VarChar(500)
+  teacher_comments String?            @db.VarChar(500)
+  socio            socio?             @relation(fields: [idSocio], references: [idSocio], onDelete: Cascade, onUpdate: NoAction, map: "fk_Socio_idSocio1")
+  usuario          usuario?           @relation(fields: [idUsuario], references: [idUsuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_Usuario_idUsuario1")
+  plan_feedback    plan_feedback?
+  progreso         plan_progreso[]
+  rutina_ejercicio rutina_ejercicio[]
+
+  @@index([idSocio], map: "fk_Socio_idSocio1")
+  @@index([idUsuario], map: "fk_Usuario_idUsuario1")
+}
+
+model plan_progreso {
+  idProgreso Int      @id @default(autoincrement())
+  idPlan     Int
+  dia        Int
+  completado Boolean  @default(false)
+  fecha      DateTime @db.DateTime(0)
+  plan       plan     @relation(fields: [idPlan], references: [idPlan], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([idPlan, dia])
+}
+
+model plan_feedback {
+  id         Int      @id @default(autoincrement())
+  planId     Int?     @unique
+  borg       borg?
+  comentario String?  @db.VarChar(500)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  plan       plan?    @relation(fields: [planId], references: [idPlan])
+
+  @@index([planId])
+}
+
+model producto {
+  idProducto     Int              @id @default(autoincrement())
+  Nombre         String?          @db.VarChar(45)
+  Descripcion    String?          @db.VarChar(100)
+  idEstado       Int?
+  fechaCreacion  DateTime?        @db.DateTime(0)
+  Precio         Decimal?         @db.Decimal(8, 2)
+  idUsuarioCreo  Int?
+  Costo          Decimal?         @db.Decimal(8, 2)
+  detalleentrada detalleentrada[]
+  detallesalida  detallesalida[]
+  estado         estado?          @relation(fields: [idEstado], references: [idEstados], onDelete: NoAction, onUpdate: NoAction, map: "fk_Producto_Estado1")
+  usuario        usuario?         @relation(fields: [idUsuarioCreo], references: [idUsuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_Producto_Usuario1")
+
+  @@index([idEstado], map: "fk_Producto_Estado1")
+  @@index([idUsuarioCreo], map: "fk_Producto_Usuario1")
+}
+
+model registro {
+  idregistro    Int       @id @default(autoincrement())
+  idSocio       Int?
+  fechaCreacion DateTime? @db.DateTime(0)
+  socio         socio?    @relation(fields: [idSocio], references: [idSocio], onDelete: Cascade, onUpdate: NoAction, map: "fk_registro_Socio1")
+
+  @@index([idSocio], map: "fk_registro_Socio1")
+}
+
+model rol {
+  id                               Int          @id @default(autoincrement())
+  nombre                           String       @db.VarChar(255)
+  idEstado                         Int
+  FechaCreacion                    DateTime     @db.DateTime(0)
+  idUsuarioCreo                    Int
+  estado_rol_idEstadoToestado      estado       @relation("rol_idEstadoToestado", fields: [idEstado], references: [idEstados], onDelete: NoAction, onUpdate: NoAction, map: "f_rol_estado")
+  estado_rol_idUsuarioCreoToestado estado       @relation("rol_idUsuarioCreoToestado", fields: [idUsuarioCreo], references: [idEstados], onDelete: NoAction, onUpdate: NoAction, map: "f_rol_usuario")
+  rol_modulo                       rol_modulo[]
+  usuario                          usuario[]
+
+  @@index([idEstado], map: "i_rol_estado")
+  @@index([idUsuarioCreo], map: "i_rol_usuario")
+}
+
+model rol_modulo {
+  id       Int     @id @default(autoincrement())
+  idRol    Int
+  idModulo Int
+  cmodulo  cmodulo @relation(fields: [idModulo], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "f_modulorol_modulo")
+  rol      rol     @relation(fields: [idRol], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "f_modulorol_rol")
+
+  @@index([idModulo], map: "i_rolmodulo_modulo")
+  @@index([idRol], map: "i_rolmodulo_rol")
+}
+
+model rutina_ejercicio {
+  idRutina        Int                        @id @default(autoincrement())
+  idPlan          Int
+  idEjercicio     Int
+  dia             Int
+  nroEjercicio    String                     @db.VarChar(4)
+  cuentaSerie     String                     @default("111111111111") @db.VarChar(12)
+  repeticionS1    String?                    @db.VarChar(20)
+  comentarioS1    String?                    @db.VarChar(100)
+  repeticionS2    String?                    @db.VarChar(20)
+  comentarioS2    String?                    @db.VarChar(100)
+  repeticionS3    String?                    @db.VarChar(20)
+  comentarioS3    String?                    @db.VarChar(100)
+  repeticionS4    String?                    @db.VarChar(20)
+  comentarioS4    String?                    @db.VarChar(100)
+  repeticionS5    String?                    @db.VarChar(20)
+  comentarioS5    String?                    @db.VarChar(100)
+  repeticionS6    String?                    @db.VarChar(20)
+  comentarioS6    String?                    @db.VarChar(100)
+  repeticionS7    String?                    @db.VarChar(20)
+  comentarioS7    String?                    @db.VarChar(100)
+  repeticionS8    String?                    @db.VarChar(20)
+  comentarioS8    String?                    @db.VarChar(100)
+  repeticionS9    String?                    @db.VarChar(20)
+  comentarioS9    String?                    @db.VarChar(100)
+  repeticionS10   String?                    @db.VarChar(20)
+  comentarioS10   String?                    @db.VarChar(100)
+  repeticionS11   String?                    @db.VarChar(20)
+  comentarioS11   String?                    @db.VarChar(100)
+  repeticionS12   String?                    @db.VarChar(20)
+  comentarioS12   String?                    @db.VarChar(100)
+  has_details     Boolean                    @default(false)
+  partner_comment partner_comment[]
+  ejercicios      ejercicios                 @relation(fields: [idEjercicio], references: [idEjercicio], onDelete: NoAction, onUpdate: NoAction, map: "fk_Ejercicio_idEjercicio")
+  plan            plan                       @relation(fields: [idPlan], references: [idPlan], onDelete: Cascade, onUpdate: NoAction, map: "fk_Plan_idPlan")
+  detalles        rutina_ejercicio_detalle[]
+
+  @@index([idEjercicio], map: "fk_Ejercicio_idEjercicio")
+  @@index([idPlan], map: "fk_Plan_idPlan")
+}
+
+model rutina_ejercicio_detalle {
+  id                Int              @id @default(autoincrement())
+  rutinaEjercicioId Int
+  semana            Int
+  serie             Int
+  peso              Float?
+  repeticiones      Int?
+  descanso          Int?
+  rpe               borg?
+  comentario        String?          @db.VarChar(100)
+  rutina_ejercicio  rutina_ejercicio @relation(fields: [rutinaEjercicioId], references: [idRutina], onDelete: Cascade)
+
+  @@index([rutinaEjercicioId, semana, serie])
+}
+
+model salida {
+  idSalida      Int             @id @default(autoincrement())
+  idEstado      Int?
+  fechaCreacion DateTime?       @db.DateTime(0)
+  total         Decimal?        @db.Decimal(8, 2)
+  idUsuarioCreo Int?
+  detallesalida detallesalida[]
+  estado        estado?         @relation(fields: [idEstado], references: [idEstados], onDelete: NoAction, onUpdate: NoAction, map: "fk_Salida_Estado1")
+  usuario       usuario?        @relation(fields: [idUsuarioCreo], references: [idUsuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_Salida_Usuario1")
+
+  @@index([idEstado], map: "fk_Salida_Estado1")
+  @@index([idUsuarioCreo], map: "fk_Salida_Usuario1")
+}
+
+model socio {
+  idSocio               Int                     @id
+  idEstado              Int?
+  fechaCreacion         DateTime?               @db.DateTime(0)
+  Nombre                String?                 @db.VarChar(45)
+  Paterno               String?                 @db.VarChar(45)
+  Materno               String?                 @db.VarChar(45)
+  DNI                   String?                 @db.VarChar(10)
+  Telefono              String?                 @db.VarChar(45)
+  Observaciones         String?                 @db.VarChar(500)
+  idUsuarioCreo         Int?
+  foto                  Bytes?
+  clave                 String?                 @db.VarChar(20)
+  huella                Bytes?
+  fechaNacimiento       DateTime?               @db.Date
+  correo                String?                 @db.VarChar(100)
+  idPlan                Int?
+  blog                  Boolean
+  avanceej              Int?
+  fechamod              DateTime                @db.DateTime(0)
+  image_profile         String?
+  nivel                 socio_nivel?
+  condicionMedica       String?                 @db.VarChar(45)
+  grupoId               Int?
+  authorization         Int?                    @db.TinyInt
+  chatthread            chatthread?
+  clase_socio           clase_socio[]
+  mercadopago_pago      mercadopago_pago[]
+  notification          notification[]
+  notifications_deleted notifications_deleted[]
+  notifications_read    notifications_read[]
+  partner_addon         partner_addon[]
+  pilates               pilates[]
+  pilates_recover       pilates_recover[]
+  plan                  plan[]
+  registro              registro[]
+  estado                estado?                 @relation(fields: [idEstado], references: [idEstados], onDelete: NoAction, onUpdate: NoAction, map: "fk_Socio_Estado1")
+  usuario               usuario?                @relation(fields: [idUsuarioCreo], references: [idUsuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_Socio_Usuario1")
+  grupo                 socio?                  @relation("SocioGrupo", fields: [grupoId], references: [idSocio], onDelete: NoAction, onUpdate: NoAction)
+  miembros              socio[]                 @relation("SocioGrupo")
+  socio_muestra         socio_muestra[]
+  sociomembresia        sociomembresia[]
+  venta                 venta[]
+  visita                visita[]
+
+  @@index([idEstado], map: "fk_Socio_Estado1")
+  @@index([idUsuarioCreo], map: "fk_Socio_Usuario1")
+  @@index([grupoId])
+}
+
+model socio_muestra {
+  id                      Int       @id @default(autoincrement())
+  idSocio                 Int?
+  fecha                   DateTime? @db.DateTime(0)
+  fechaMuestra            DateTime? @db.Date
+  peso                    Decimal?  @db.Decimal(10, 2)
+  estatura                Decimal?  @db.Decimal(10, 2)
+  porcentajeGrasaCorporal Decimal?  @db.Decimal(10, 2)
+  porcentajeMasaMuscular  Decimal?  @db.Decimal(10, 2)
+  observacion             String?   @db.VarChar(500)
+  idEstado                Int?
+  idUsuarioCreo           Int?
+  estado                  estado?   @relation(fields: [idEstado], references: [idEstados], onDelete: NoAction, onUpdate: NoAction, map: "f_sociomuestra_estado")
+  socio                   socio?    @relation(fields: [idSocio], references: [idSocio], onDelete: Cascade, onUpdate: NoAction, map: "f_sociomuestra_socio")
+
+  @@index([idEstado], map: "i_sociomuestra_estado")
+  @@index([idSocio], map: "i_sociomuestra_socio")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sociomembresia {
+  idSocioMembresia      Int                             @id @default(autoincrement())
+  idEstado              Int?
+  fechaCreacion         DateTime?                       @db.DateTime(0)
+  idUsuarioCreo         Int?
+  idSocio               Int?
+  idMembresia           Int?
+  Precio                Decimal?                        @db.Decimal(8, 2)
+  fechaInicioMembresia  DateTime?                       @db.DateTime(0)
+  estadoMembresia       sociomembresia_estadoMembresia?
+  meses                 Int?                            @default(0)
+  semanas               Int?                            @default(0)
+  dias                  Int?                            @default(0)
+  idTipoMembresia       Int?                            @default(1)
+  Vencimiento           DateTime?                       @db.DateTime(0)
+  mercadopago_pago      mercadopago_pago[]
+  pilates_disponibles   pilates_disponibles?
+  estado                estado?                         @relation(fields: [idEstado], references: [idEstados], onDelete: NoAction, onUpdate: NoAction, map: "fk_SocioMembresia_Estado1")
+  membresia             membresia?                      @relation(fields: [idMembresia], references: [idMembresia], onDelete: Cascade, onUpdate: NoAction, map: "fk_SocioMembresia_Membresia1")
+  socio                 socio?                          @relation(fields: [idSocio], references: [idSocio], onDelete: Cascade, onUpdate: NoAction, map: "fk_SocioMembresia_Socio1")
+  ctipomembresia        ctipomembresia?                 @relation(fields: [idTipoMembresia], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_SocioMembresia_Tipo")
+  usuario               usuario?                        @relation(fields: [idUsuarioCreo], references: [idUsuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_SocioMembresia_Usuario1")
+  sociomembresia_pago   sociomembresia_pago[]
+  sociomembresiaPilates sociomembresia_pilates[]        @relation("sociomembresiaTosociomembresia_pilates")
+
+  @@index([idEstado], map: "fk_SocioMembresia_Estado1")
+  @@index([idMembresia], map: "fk_SocioMembresia_Membresia1")
+  @@index([idSocio], map: "fk_SocioMembresia_Socio1")
+  @@index([idTipoMembresia], map: "fk_SocioMembresia_Tipo")
+  @@index([idUsuarioCreo], map: "fk_SocioMembresia_Usuario1")
+}
+
+model sociomembresia_pago {
+  id               Int             @id @default(autoincrement())
+  observacion      String?         @db.VarChar(100)
+  folio            Int?
+  idSocioMembresia Int?
+  fecha            DateTime?       @db.DateTime(0)
+  idEstado         Int?
+  idUsuarioCreo    Int?
+  importe          Decimal?        @db.Decimal(10, 2)
+  estado           estado?         @relation(fields: [idEstado], references: [idEstados], onDelete: NoAction, onUpdate: NoAction, map: "smp_estado_f")
+  sociomembresia   sociomembresia? @relation(fields: [idSocioMembresia], references: [idSocioMembresia], onDelete: Cascade, onUpdate: NoAction, map: "smp_sociomembresia_f")
+  usuario          usuario?        @relation(fields: [idUsuarioCreo], references: [idUsuario], onDelete: NoAction, onUpdate: NoAction, map: "smp_usuario_f")
+
+  @@index([idEstado], map: "smp_estado_i")
+  @@index([idSocioMembresia], map: "smp_sociomembresia_i")
+  @@index([idUsuarioCreo], map: "smp_usuario_i")
+}
+
+model usuario {
+  idUsuario           Int                   @id @default(autoincrement())
+  idEstado            Int?                  @default(1)
+  Usuario             String?               @db.VarChar(45)
+  Nombre              String?               @db.VarChar(45)
+  fechaCreacion       DateTime?             @db.DateTime(0)
+  Password            String?               @db.VarChar(100)
+  idRol               Int
+  Telefono            String?               @db.VarChar(45)
+  clase               clase[]
+  entrada             entrada[]
+  membresia           membresia[]
+  plan                plan[]
+  producto            producto[]
+  salida              salida[]
+  socio               socio[]
+  sociomembresia      sociomembresia[]
+  sociomembresia_pago sociomembresia_pago[]
+  rol                 rol                   @relation(fields: [idRol], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "f_usuario_rol")
+  estado              estado?               @relation(fields: [idEstado], references: [idEstados], onDelete: NoAction, onUpdate: NoAction, map: "fk_Usuario_Estados")
+
+  @@index([idEstado], map: "fk_Usuario_Estados")
+  @@index([idRol], map: "i_usuarios_rol")
+}
+
+model visita {
+  idVisita         Int       @id @default(autoincrement())
+  idSocio          Int?
+  fechaCreacion    DateTime? @db.DateTime(0)
+  precioVisita     Decimal?  @db.Decimal(8, 2)
+  horaFinalizacion DateTime? @db.DateTime(0)
+  socio            socio?    @relation(fields: [idSocio], references: [idSocio], onDelete: Cascade, onUpdate: NoAction, map: "fk_Visita_Socio1")
+
+  @@index([idSocio], map: "fk_Visita_Socio1")
+}
+
+model comentarios {
+  idComentario Int     @id @default(autoincrement())
+  idSocio      Int?
+  idPlan       Int?
+  idRutina     Int?
+  comentariop  String? @db.VarChar(100)
+}
+
+model notification {
+  id                    Int                     @id @default(autoincrement())
+  userId                Int?
+  title                 String
+  seen                  Boolean                 @default(false)
+  type                  notification_type
+  refLink               String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  details               String?                 @db.Text
+  externalLink          String?
+  general               Boolean                 @default(false)
+  user                  socio?                  @relation(fields: [userId], references: [idSocio], onDelete: Cascade)
+  notifications_deleted notifications_deleted[]
+  notifications_read    notifications_read[]
+
+  @@index([userId])
+}
+
+model notifications_deleted {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  notificationId Int
+  deletedAt      DateTime     @default(now())
+  notification   notification @relation(fields: [notificationId], references: [id])
+  user           socio        @relation(fields: [userId], references: [idSocio], onDelete: Cascade)
+
+  @@unique([userId, notificationId])
+  @@index([userId])
+  @@index([notificationId])
+}
+
+model notifications_read {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  notificationId Int
+  notification   notification @relation(fields: [notificationId], references: [id])
+  user           socio        @relation(fields: [userId], references: [idSocio], onDelete: Cascade)
+
+  @@unique([userId, notificationId])
+  @@index([userId])
+  @@index([notificationId])
+}
+
+model readme {
+  id       Int     @id @default(autoincrement())
+  title    String
+  comment  String?
+  file     String?
+  videoURL String?
+}
+
+model partner_comment {
+  id        Int              @id @default(autoincrement())
+  routineId Int
+  week      Int
+  comment   String
+  routine   rutina_ejercicio @relation(fields: [routineId], references: [idRutina])
+
+  @@unique([routineId, week])
+}
+
+model partner_addon {
+  id             Int      @id @default(autoincrement())
+  partnerId      Int?
+  pa_certificate String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  partner        socio?   @relation(fields: [partnerId], references: [idSocio], onDelete: Cascade)
+
+  @@index([partnerId])
+}
+
+model pilates {
+  id                Int              @id @default(autoincrement())
+  idSocio           Int?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  start             DateTime
+  end               DateTime
+  bed               Int
+  color             pilates_color    @default(PURPLE)
+  fap               fap?
+  title             String?
+  socio             socio?           @relation(fields: [idSocio], references: [idSocio], onDelete: Cascade)
+  pilates_recovered pilates_recover? @relation("PilatesRecovered")
+  pilates_recover   pilates_recover? @relation("PilatesRecover")
+
+  @@index([idSocio])
+}
+
+model pilates_recover {
+  id                 Int      @id @default(autoincrement())
+  idSocio            Int?
+  idPilates          Int      @unique
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  idPilatesRecovered Int?     @unique
+  pilatesRecovered   pilates? @relation("PilatesRecovered", fields: [idPilatesRecovered], references: [id], onDelete: Cascade)
+  pilates            pilates  @relation("PilatesRecover", fields: [idPilates], references: [id], onDelete: Cascade)
+  socio              socio?   @relation(fields: [idSocio], references: [idSocio], onDelete: Cascade)
+
+  @@index([idSocio, idPilates])
+}
+
+model sociomembresia_pilates {
+  id               Int            @id @default(autoincrement())
+  day              String
+  time             String
+  sociomembresiaId Int
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  sociomembresia   sociomembresia @relation("sociomembresiaTosociomembresia_pilates", fields: [sociomembresiaId], references: [idSocioMembresia], onDelete: Cascade)
+
+  @@index([sociomembresiaId], map: "sociomembresia_pilates_sociomembresiaId_fkey")
+}
+
+model pilates_disponibles {
+  id                 Int            @id @default(autoincrement())
+  idSocioMembresia   Int            @unique
+  clases_disponibles Int            @default(0)
+  clases_ocupadas    Int            @default(0)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  sociomembresia     sociomembresia @relation(fields: [idSocioMembresia], references: [idSocioMembresia], onDelete: Cascade)
+}
+
+model mercadopago_pago {
+  id               Int            @id @default(autoincrement())
+  idSocio          Int
+  idSocioMembresia Int
+  monto            Decimal        @db.Decimal(10, 2)
+  fecha            DateTime       @default(now())
+  estado           String         @db.VarChar(30)
+  mp_payment_id    String?        @db.VarChar(100)
+  mp_preference_id String?        @db.VarChar(100)
+  raw_response     String?        @db.Text
+  sociomembresia   sociomembresia @relation(fields: [idSocioMembresia], references: [idSocioMembresia], onDelete: Cascade)
+  socio            socio          @relation(fields: [idSocio], references: [idSocio], onDelete: Cascade)
+
+  @@index([idSocio])
+  @@index([idSocioMembresia])
+}
+
+model venta_categoria {
+  id        Int              @id @default(autoincrement())
+  nombre    String           @db.VarChar(50)
+  productos venta_producto[]
+}
+
+model venta_producto {
+  id          Int             @id @default(autoincrement())
+  nombre      String          @db.VarChar(100)
+  sku         String          @unique @db.VarChar(30)
+  descripcion String?         @db.VarChar(500)
+  precio      Decimal         @db.Decimal(10, 2)
+  cantidad    Int
+  cantidadMin Int
+  imagen      String?         @db.VarChar(255)
+  categoriaId Int
+  ventas      venta[]
+  categoria   venta_categoria @relation(fields: [categoriaId], references: [id])
+
+  @@index([categoriaId], map: "venta_producto_categoriaId_fkey")
+}
+
+model venta {
+  id         Int            @id @default(autoincrement())
+  productoId Int
+  socioId    Int?
+  cantidad   Int
+  total      Decimal        @db.Decimal(10, 2)
+  fecha      DateTime       @default(now())
+  producto   venta_producto @relation(fields: [productoId], references: [id])
+  socio      socio?         @relation(fields: [socioId], references: [idSocio])
+
+  @@index([productoId], map: "venta_productoId_fkey")
+  @@index([socioId], map: "venta_socioId_fkey")
+}
+
+model chatmessage {
+  id         Int              @id @default(autoincrement())
+  threadId   Int
+  content    String
+  role       chatmessage_role
+  createdAt  DateTime         @default(now())
+  chatthread chatthread       @relation(fields: [threadId], references: [id], onDelete: Cascade, map: "ChatMessage_threadId_fkey")
+
+  @@index([threadId], map: "ChatMessage_threadId_fkey")
+}
+
+model chatthread {
+  id             Int           @id @default(autoincrement())
+  socioId        Int           @unique(map: "ChatThread_socioId_key")
+  openaiThreadId String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime
+  chatmessage    chatmessage[]
+  socio          socio         @relation(fields: [socioId], references: [idSocio], onDelete: Cascade, map: "ChatThread_socioId_fkey")
+}
+
+enum type_of_training {
+  Salud_Estetico
+  Deporte
+  Concurrente_Funcional
+  Desconocido
+}
+
+enum state_of_training {
+  actualizar
+  en_proceso
+  ok
+}
+
+enum borg {
+  ZERO
+  ONE
+  TWO
+  THREE
+  FOUR
+  FIVE
+  SIX
+  SEVEN
+  EIGHT
+  NINE
+  TEN
+}
+
+enum socio_nivel {
+  AVANZADO
+  INTERMEDIO
+  INICIAL
+}
+
+enum notification_type {
+  sample
+  custom
+}
+
+enum pilates_color {
+  PURPLE
+  RED
+  WHITE
+  ORANGE
+  MAGENTA
+}
+
+enum fap {
+  F
+  A
+  P
+}
+
+enum clase_lunes {
+  No
+  Si
+}
+
+enum sociomembresia_estadoMembresia {
+  Sin_pagar @map("Sin pagar")
+  Pagada
+}
+
+enum clase_martes {
+  No
+  Si
+}
+
+enum clase_miercoles {
+  No
+  Si
+}
+
+enum clase_jueves {
+  No
+  Si
+}
+
+enum clase_viernes {
+  No
+  Si
+}
+
+enum clase_sabado {
+  No
+  Si
+}
+
+enum clase_domingo {
+  No
+  Si
+}
+
+enum chatmessage_role {
+  user
+  bot
+}

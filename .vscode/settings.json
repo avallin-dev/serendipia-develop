@@ -1,0 +1,80 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "html.validate.scripts": true,
+  "html.validate.styles": true,
+  "html.format.enable": true,
+  "htmlhint.enable": true,
+  "htmlhint.options": {
+    "tagname-lowercase": true,
+    "attr-lowercase": false,
+    "attr-value-double-quotes": true,
+    "doctype-first": true,
+    "tag-pair": true,
+    "spec-char-escape": true,
+    "id-unique": true,
+    "head-script-disabled": true,
+    "style-disabled": true
+  },
+  "prettier.tabWidth": 2,
+  "[css]": {
+    "editor.defaultFormatter": "sibiraj-s.vscode-scss-formatter",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  "prettier.printWidth": 160,
+  "px-to-rem.px-per-rem": 16,
+  "css.lint.unknownAtRules": "ignore",
+  "editor.tabSize": 2,
+  "cSpell.language": "en,es-ES,en-GB",
+  "cSpell.words": [
+    "amrap",
+    "anio",
+    "categoria",
+    "Categoria",
+    "checkins",
+    "Checkins",
+    "chicago",
+    "cmodulo",
+    "condicion",
+    "Creacion",
+    "datalabels",
+    "diaactual",
+    "dias",
+    "emom",
+    "Exercice",
+    "facturacion",
+    "Facturation",
+    "fechamod",
+    "Finalizacion",
+    "frecuency",
+    "Hiperlaxo",
+    "membresia",
+    "Membresias",
+    "Modulos",
+    "notificationchema",
+    "openai",
+    "partnerboards",
+    "Recorda",
+    "repeticion",
+    "Resetear",
+    "Schma",
+    "semanaactual",
+    "sociomembresia",
+    "Telefono"
+  ],
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "WillLuke.nextjs.addTypesOnSave": true,
+  "WillLuke.nextjs.hasPrompted": true,
+  "php.validate.executablePath": ""
+}

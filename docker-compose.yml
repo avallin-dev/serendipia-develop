@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: nexo-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: nexo
+      MYSQL_USER: nexo
+      MYSQL_PASSWORD: nexo
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - dockploy
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  app:
+    build: .
+    container_name: nexo-serendipia
+    restart: unless-stopped
+    ports:
+      - "8083:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - dockploy
+    command: >
+      sh -c "
+        echo 'Esperando a MySQL...' &&
+        sleep 30 &&
+        echo 'MySQL listo. Aplicando migraciones...' &&
+        npx prisma migrate deploy &&
+        npx prisma generate &&
+        echo 'Iniciando app...' &&
+        node server.js
+      "
+
+volumes:
+  mysql_data:
+
+networks:
+  dockploy:
+    driver: bridge
