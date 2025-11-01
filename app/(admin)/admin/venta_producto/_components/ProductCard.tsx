@@ -4,19 +4,10 @@ import { Image } from '@imagekit/next';
 import { Button } from '@/app/components/ui/button'
 
 export function ProductCard({ producto, onVenta, onEdit, onDelete }) {
-  console.log(producto)
   return (
     <div className="flex w-full max-w-sm flex-col rounded-lg border border-gray-200 bg-white shadow-sm">
       <div className="flex-1">
         <div className="flex h-52 justify-center bg-gray-200">
-          {/*<Image*/}
-          {/*  className="rounded-t-lg object-contain p-8"*/}
-          {/*  src={producto.imagen || '/images/Logo_2.png'}*/}
-          {/*  alt={producto.nombre}*/}
-          {/*  width={200}*/}
-          {/*  height={200}*/}
-          {/*/>*/}
-
           <Image
             className="w-[-webkit-fill-available] brightness-70 hover:brightness-150 rounded-t"
             urlEndpoint="https://ik.imagekit.io/a9uh8fwlt/"
@@ -25,7 +16,6 @@ export function ProductCard({ producto, onVenta, onEdit, onDelete }) {
             width={200}
             height={200}
           />
-
         </div>
         <div className="px-5 pb-5">
           <div className="h-5"></div>

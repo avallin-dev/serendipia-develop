@@ -161,6 +161,10 @@ const UploadImage = () => {
       </Dropzone>
       <div className={'mt-4'}>
         <Progress className={'bg-primary-foreground'} value={progress} />
+        <div className={'mt-4 flex justify-center font-light italic'}>
+          {progress === 100 ? 'Archivo subido con éxito' : 'Sea paciente, espere hasta que se muestre el archivo'}
+        </div>
+
       </div>
 
     </>
