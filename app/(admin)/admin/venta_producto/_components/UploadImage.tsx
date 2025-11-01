@@ -64,19 +64,7 @@ const UploadImage = () => {
    * - Catches and processes errors accordingly.
    */
   const handleUpload = async (files: File[]) => {
-    // Access the file input element using the ref
-    // const fileInput = fileInputRef.current
-    // if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-    //   alert('Please select a file to upload')
-    //   return
-    // }
-
-    // Extract the first file from the file input
-    // const file = fileInput.files[0]
-
     const file = files[0]
-
-
     // Retrieve authentication parameters for the upload.
     let authParams
     try {
