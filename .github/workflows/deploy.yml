@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: "actions/checkout@v3"
       - name: Deploy to VPS
         run: |
               . ~/.bashrc || true
@@ -20,6 +20,8 @@ jobs:
             git pull origin master
             pm2 stop all
             pm2 delete all
+            npx prisma db pull
+            npx prisma generate
             # if [[ "$(git log -1 --pretty=%B)" == *"push"* ]]; then
             #   npx prisma db push
             # else
