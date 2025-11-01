@@ -4,14 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint --ext .ts,.tsx ./app --no-error-on-unmatched-pattern",
     "lint:fix": "eslint --ext .ts,.tsx ./app --no-error-on-unmatched-pattern --fix",
     "prettier": "prettier \"**/*.+(json|ts|tsx)\"",
     "format:check": "npm run prettier -- --check",
     "format:fix": "npm run prettier -- --write",
-    "types:check": "tsc --noEmit --pretty"
+    "types:check": "tsc --noEmit --pretty",
+    "postinstall": "prisma generate"
 
   },
   "dependencies": {
