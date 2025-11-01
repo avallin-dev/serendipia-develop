@@ -7,16 +7,8 @@ import { GroupBase } from 'react-select'
 import { toast } from 'sonner'
 
 import { SelectComponent } from '@/app/components/createable-select'
-import { FileUploader } from '@/app/components/file-uploader'
 import ModalWrapper from '@/app/components/ModalWrapper'
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from '@/app/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/app/components/ui/form'
 import { Input } from '@/app/components/ui/input'
 import { ventaProductoSchema, VentaProductoSchemaType } from '@/app/schemas/venta_producto'
 import { useCreateVentaCategoriaMutation } from '@/app/services/mutations/venta_categoria'
@@ -38,13 +30,14 @@ type Option = GroupBase<string> & {
   value: string
   label: string
 }
+
 export function UpdateVentaProducto({
-  open,
-  onClose,
-  categories,
-  initialData,
-  isUpdate,
-}: UpdateProductoProps) {
+                                      open,
+                                      onClose,
+                                      categories,
+                                      initialData,
+                                      isUpdate,
+                                    }: UpdateProductoProps) {
   const queryClient = useQueryClient()
   const createVenta = useCreateVentaProductoMutation()
   const updateVenta = useUpdateVentaProductoMutation()
@@ -65,7 +58,7 @@ export function UpdateVentaProducto({
 
   function onSubmit(data: VentaProductoSchemaType) {
     const { nombre, sku, descripcion, precio, cantidad, cantidadMin, categoriaId, imagen } = data
-    const uploadedImage = localStorage.getItem("upload-filePath");
+    const uploadedImage = localStorage.getItem('upload-filePath')
     const formData = new FormData()
     formData.append('nombre', nombre ?? '')
     formData.append('sku', sku ?? '')
@@ -87,7 +80,7 @@ export function UpdateVentaProducto({
             onClose()
           },
           onError: () => toast.error('Error al actualizar el producto'),
-        }
+        },
       )
     } else {
       createVenta.mutate(
@@ -104,7 +97,7 @@ export function UpdateVentaProducto({
             console.error(error)
             toast.error('Error al crear el producto')
           },
-        }
+        },
       )
     }
   }
@@ -241,7 +234,7 @@ export function UpdateVentaProducto({
           </div>
         </div>
 
-        <UploadImage/>
+        <UploadImage />
         <FormField
           control={form.control}
           name="imagen"

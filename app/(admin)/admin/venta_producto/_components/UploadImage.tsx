@@ -9,9 +9,8 @@ import {
 } from '@imagekit/next'
 import * as React from 'react'
 import { useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from '@/components/ui/shadcn-io/dropzone'
+import { Progress } from '@/components/ui/progress'
 
 // UploadImage component demonstrates file uploading using ImageKit's Next.js SDK.
 const UploadImage = () => {
@@ -76,17 +75,7 @@ const UploadImage = () => {
     // const file = fileInput.files[0]
 
     const file = files[0]
-    console.log(files)
-    setFiles(files)
-    if (files.length > 0) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        if (typeof e.target?.result === 'string') {
-          setFilePreview(e.target?.result)
-        }
-      }
-      reader.readAsDataURL(files[0])
-    }
+
 
     // Retrieve authentication parameters for the upload.
     let authParams
@@ -115,11 +104,19 @@ const UploadImage = () => {
         // Abort signal to allow cancellation of the upload if needed.
         abortSignal: abortController.signal,
       })
-      console.log('Upload response:', uploadResponse)
+
+      setFiles(files)
+      if (files.length > 0) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          if (typeof e.target?.result === 'string') {
+            setFilePreview(e.target?.result)
+          }
+        }
+        reader.readAsDataURL(files[0])
+      }
       localStorage.setItem('upload-file', JSON.stringify(uploadResponse.fileId).replaceAll('"', '').trim())
       localStorage.setItem('upload-filePath', JSON.stringify(uploadResponse.filePath).replaceAll('"', '').trim())
-      console.log(localStorage.getItem('upload-filePath'))
-      console.log(localStorage.getItem('upload-file'))
     } catch (error) {
       // Handle specific error types provided by the ImageKit SDK.
       if (error instanceof ImageKitAbortError) {
@@ -140,19 +137,6 @@ const UploadImage = () => {
 
   const [files, setFiles] = useState<File[] | undefined>()
   const [filePreview, setFilePreview] = useState<string | undefined>()
-  const handleDrop = (files: File[]) => {
-    console.log(files)
-    setFiles(files)
-    if (files.length > 0) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        if (typeof e.target?.result === 'string') {
-          setFilePreview(e.target?.result)
-        }
-      }
-      reader.readAsDataURL(files[0])
-    }
-  }
 
   return (
     <>
@@ -175,6 +159,10 @@ const UploadImage = () => {
           )}
         </DropzoneContent>
       </Dropzone>
+      <div className={'mt-4'}>
+        <Progress className={'bg-primary-foreground'} value={progress} />
+      </div>
+
     </>
   )
 }
