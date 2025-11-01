@@ -20,13 +20,9 @@ jobs:
             git pull origin master
             pm2 stop all
             pm2 delete all
+            npm install
             npx prisma db pull
             npx prisma generate
-            # if [[ "$(git log -1 --pretty=%B)" == *"push"* ]]; then
-            #   npx prisma db push
-            # else
-            #   npx prisma generate
-            # fi
             npm run build
             pm2 start npm -- start
             sudo systemctl restart nginx
