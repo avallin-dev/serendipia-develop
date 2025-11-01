@@ -11,8 +11,8 @@
     "prettier": "prettier \"**/*.+(json|ts|tsx)\"",
     "format:check": "npm run prettier -- --check",
     "format:fix": "npm run prettier -- --write",
-    "types:check": "tsc --noEmit --pretty",
-    "prepare": "husky install"
+    "types:check": "tsc --noEmit --pretty"
+
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.637.0",
