@@ -77,6 +77,7 @@ const UploadImage = () => {
     const { signature, expire, token, publicKey } = authParams
 
     // Call the ImageKit SDK upload function with the required parameters and callbacks.
+    console.log(token)
     if (token) {
       try {
         const uploadResponse = await upload({
