@@ -8,7 +8,7 @@ import {
   upload,
 } from '@imagekit/next'
 import * as React from 'react'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from '@/components/ui/shadcn-io/dropzone'
 import { Progress } from '@/components/ui/progress'
 
@@ -18,7 +18,7 @@ const UploadImage = () => {
   const [progress, setProgress] = useState(0)
 
   // Create a ref for the file input element to access its files easily
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  // const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Create an AbortController instance to provide an option to cancel the upload if needed.
   const abortController = new AbortController()
@@ -69,6 +69,7 @@ const UploadImage = () => {
     let authParams
     try {
       authParams = await authenticator()
+      console.log(authParams)
     } catch (authError) {
       console.error('Failed to authenticate for upload:', authError)
       return
@@ -76,50 +77,53 @@ const UploadImage = () => {
     const { signature, expire, token, publicKey } = authParams
 
     // Call the ImageKit SDK upload function with the required parameters and callbacks.
-    try {
-      const uploadResponse = await upload({
-        // Authentication parameters
-        expire,
-        token,
-        signature,
-        publicKey,
-        file,
-        fileName: file.name, // Optionally set a custom file name
-        // Progress callback to update upload progress state
-        onProgress: (event) => {
-          setProgress((event.loaded / event.total) * 100)
-        },
-        // Abort signal to allow cancellation of the upload if needed.
-        abortSignal: abortController.signal,
-      })
+    if (token) {
+      try {
+        const uploadResponse = await upload({
+          // Authentication parameters
+          expire,
+          token,
+          signature,
+          publicKey,
+          file,
+          fileName: file.name, // Optionally set a custom file name
+          // Progress callback to update upload progress state
+          onProgress: (event) => {
+            setProgress((event.loaded / event.total) * 100)
+          },
+          // Abort signal to allow cancellation of the upload if needed.
+          abortSignal: abortController.signal,
+        })
 
-      setFiles(files)
-      if (files.length > 0) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          if (typeof e.target?.result === 'string') {
-            setFilePreview(e.target?.result)
+        setFiles(files)
+        if (files.length > 0) {
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            if (typeof e.target?.result === 'string') {
+              setFilePreview(e.target?.result)
+            }
           }
+          reader.readAsDataURL(files[0])
         }
-        reader.readAsDataURL(files[0])
-      }
-      localStorage.setItem('upload-file', JSON.stringify(uploadResponse.fileId).replaceAll('"', '').trim())
-      localStorage.setItem('upload-filePath', JSON.stringify(uploadResponse.filePath).replaceAll('"', '').trim())
-    } catch (error) {
-      // Handle specific error types provided by the ImageKit SDK.
-      if (error instanceof ImageKitAbortError) {
-        console.error('Upload aborted:', error.reason)
-      } else if (error instanceof ImageKitInvalidRequestError) {
-        console.error('Invalid request:', error.message)
-      } else if (error instanceof ImageKitUploadNetworkError) {
-        console.error('Network error:', error.message)
-      } else if (error instanceof ImageKitServerError) {
-        console.error('Server error:', error.message)
-      } else {
-        // Handle any other errors that may occur.
-        console.error('Upload error:', error)
+        localStorage.setItem('upload-file', JSON.stringify(uploadResponse.fileId).replaceAll('"', '').trim())
+        localStorage.setItem('upload-filePath', JSON.stringify(uploadResponse.filePath).replaceAll('"', '').trim())
+      } catch (error) {
+        // Handle specific error types provided by the ImageKit SDK.
+        if (error instanceof ImageKitAbortError) {
+          console.error('Upload aborted:', error.reason)
+        } else if (error instanceof ImageKitInvalidRequestError) {
+          console.error('Invalid request:', error.message)
+        } else if (error instanceof ImageKitUploadNetworkError) {
+          console.error('Network error:', error.message)
+        } else if (error instanceof ImageKitServerError) {
+          console.error('Server error:', error.message)
+        } else {
+          // Handle any other errors that may occur.
+          console.error('Upload error:', error)
+        }
       }
     }
+
   }
 
 
