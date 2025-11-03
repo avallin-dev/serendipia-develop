@@ -7,6 +7,7 @@ export async function createMercadoPagoPreference({
   idSocioMembresia,
   nombreMembresia,
   monto,
+  socioNombre,
   socioEmail,
 }: {
   idSocio: number
@@ -20,25 +21,62 @@ export async function createMercadoPagoPreference({
   if (!accessToken) throw new Error('Falta la variable de entorno MP_ACCESS_TOKEN')
 
   // Crear suscripción mensual (preapproval) en Mercado Pago
+  // const body = {
+  //   reason: nombreMembresia,
+  //   auto_recurring: {
+  //     frequency: 1,
+  //     frequency_type: 'months',
+  //     transaction_amount: monto,
+  //     currency_id: 'ARS',
+  //   },
+  //   payer_email: socioEmail,
+  //   back_url: `${NEXT_PUBLIC_BASE_URL}/profile`,
+  //   status: 'pending',
+  //   external_reference: `${idSocio}-${idSocioMembresia}`,
+  //   metadata: {
+  //     idSocio,
+  //     idSocioMembresia,
+  //   },
+  // }
+
+
+  // Crear preferencia en Mercado Pago
   const body = {
-    reason: nombreMembresia,
-    auto_recurring: {
-      frequency: 1,
-      frequency_type: 'months',
-      transaction_amount: monto,
-      currency_id: 'ARS',
+    items: [
+      {
+        title: nombreMembresia,
+        quantity: 1,
+        unit_price: monto,
+        currency_id: 'ARS',
+      },
+    ],
+    payer: {
+      name: socioNombre,
+      email: socioEmail,
     },
-    payer_email: socioEmail,
-    back_url: `${NEXT_PUBLIC_BASE_URL}/profile`,
-    status: 'pending',
-    external_reference: `${idSocio}-${idSocioMembresia}`,
+    back_urls: {
+      success: `${NEXT_PUBLIC_BASE_URL}/profile`,
+      failure: `${NEXT_PUBLIC_BASE_URL}/profile`,
+      pending: `${NEXT_PUBLIC_BASE_URL}/profile`,
+    },
+    auto_return: 'approved',
     metadata: {
       idSocio,
       idSocioMembresia,
     },
   }
 
-  const res = await fetch('https://api.mercadopago.com/preapproval', {
+
+  // const res = await fetch('https://api.mercadopago.com/preapproval', {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     Authorization: `Bearer ${accessToken}`,
+  //   },
+  //   body: JSON.stringify(body),
+  // })
+
+  const res = await fetch('https://api.mercadopago.com/checkout/preferences', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -48,6 +86,7 @@ export async function createMercadoPagoPreference({
   })
 
   const data = await res.json()
+  console.log(data)
   if (!data.id || !data.init_point) throw new Error('No se pudo crear la suscripción de pago')
 
   // Registrar la suscripción como pendiente
