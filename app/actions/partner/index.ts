@@ -61,9 +61,9 @@ export async function getAllPartners() {
 
 export async function getPartners() {
   const data = await prisma.socio.findMany({
-    where: {
-      idEstado: 1,
-    },
+    // where: {
+    //   idEstado: 1,
+    // },
     select: {
       DNI: true,
       Nombre: true,
