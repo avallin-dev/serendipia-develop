@@ -18,7 +18,7 @@ export function ActivatePlanModal({ idPlan, nombrePlan }: { idPlan?: number, nom
   }
 
   return (
-    <Dialog open={Boolean(percentage && percentage == 0) && Boolean(nombrePlan && nombrePlan != 'Entrenamiento a distancia')} onOpenChange={_ => {
+    <Dialog open={Boolean(percentage && percentage == 0) && Boolean(nombrePlan && nombrePlan != 'Entrenamiento a distancia') && !Boolean(nombrePlan && nombrePlan.includes('PILATES')) && !Boolean(nombrePlan && nombrePlan.includes('SIN PLAN'))} onOpenChange={_ => {
       handleEnabled().then()
     }}>
       <DialogContent className="sm:max-w-md">
