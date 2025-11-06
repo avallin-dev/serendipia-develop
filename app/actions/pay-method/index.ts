@@ -46,7 +46,7 @@ export async function createMercadoPagoPreference({
       {
         title: nombreMembresia,
         quantity: 1,
-        unit_price: monto,
+        unit_price: Number(monto),
         currency_id: 'ARS',
       },
     ],

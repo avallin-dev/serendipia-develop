@@ -42,3 +42,4 @@ TODO*.txt
 
 # prisma migrations
 prisma/migrations/
+/.idea
