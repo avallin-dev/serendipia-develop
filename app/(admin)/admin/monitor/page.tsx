@@ -192,10 +192,6 @@ export default function Page() {
 
     }
 
-    filteredData.forEach(filter => {
-        console.log(filter.socio?.sociomembresia)
-    })
-    console.log(filteredData)
     return (
         <div>
             <FilterModal

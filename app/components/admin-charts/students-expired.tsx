@@ -28,8 +28,21 @@ export default function StudentsExpired({
   to?: Date
 }) {
   const now = new Date()
-  const from = fromProp ?? new Date(now.getFullYear(), now.getMonth(), 1)
-  const to = toProp ?? new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+  const year = now.getFullYear()
+  const month = now.getMonth()
+
+  let from: Date
+  let to: Date
+
+    if ( month == 0) {
+        from = new Date(year - 1, month + 11, 1)
+        to = new Date(year - 1, month + 11, 0)
+    } else {
+        from = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+        to = new Date(now.getFullYear(), now.getMonth(), 0)
+    }
+
+  const toShow = from.toLocaleString('es-ES', {month: 'long'}).toLowerCase();
   const [filtro, setFiltro] = useState<'todos' | 'con_plan' | 'sin_plan' | 'otros'>('todos')
   const { data: dataBar, isLoading: isLoadingBar } = useStudentsByMembership({
     from,
@@ -102,7 +115,7 @@ export default function StudentsExpired({
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-2xl font-semibold">Alumnos totales a mes vencido</h2>
+        <h2 className="text-2xl font-semibold">Alumnos totales a mes vencido ({toShow})</h2>
         <Button
           className="flex items-center gap-1 rounded border px-2 py-1 text-base hover:opacity-75"
           onClick={handleExportPagos}

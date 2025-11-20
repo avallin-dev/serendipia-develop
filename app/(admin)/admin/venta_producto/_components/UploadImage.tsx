@@ -69,7 +69,6 @@ const UploadImage = () => {
     let authParams
     try {
       authParams = await authenticator()
-      console.log(authParams)
     } catch (authError) {
       console.error('Failed to authenticate for upload:', authError)
       return
@@ -77,7 +76,6 @@ const UploadImage = () => {
     const { signature, expire, token, publicKey } = authParams
 
     // Call the ImageKit SDK upload function with the required parameters and callbacks.
-    console.log(token)
     if (token) {
       try {
         const uploadResponse = await upload({

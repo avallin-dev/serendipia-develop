@@ -44,6 +44,7 @@ export async function createMercadoPagoPreference({
   const body = {
     items: [
       {
+        id: `Pago Membresia ${idSocioMembresia}`,
         title: nombreMembresia,
         quantity: 1,
         unit_price: Number(monto),
@@ -85,8 +86,8 @@ export async function createMercadoPagoPreference({
     body: JSON.stringify(body),
   })
 
+  console.log(res)
   const data = await res.json()
-  // console.log(data)
   if (!data.id || !data.init_point) throw new Error('No se pudo crear la suscripción de pago')
 
   // Registrar la suscripción como pendiente

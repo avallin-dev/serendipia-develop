@@ -53,7 +53,6 @@ export default function MercadoPagoButton({
       },
       {
         onSuccess: (data) => {
-          console.log(data)
           if (data?.url) {
             window.location.href = data.url
           }
