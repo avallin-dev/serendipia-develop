@@ -20,22 +20,29 @@ function Widget() {
   const [localMessages, setLocalMessages] = useState<Message[]>([])
   const [waitingBot, setWaitingBot] = useState(false)
 
-  useEffect(() => {
-    if (open && backendMessages && Array.isArray(backendMessages)) {
-      setLocalMessages(
-        backendMessages.map((m: { content: string; role: 'user' | 'bot' }) => ({
-          text: m.content,
-          sender: m.role,
-        }))
-      )
-    }
-  }, [open, backendMessages])
+  console.log(backendMessages)
+  // setLocalMessages(
+  //           backendMessages.map((m: { content: string; role: 'user' | 'bot' }) => ({
+  //             text: m.content,
+  //             sender: m.role,
+  //           }))
+  //         )
+  // useEffect(() => {
+  //   if (open && backendMessages && Array.isArray(backendMessages)) {
+  //     setLocalMessages(
+  //       backendMessages.map((m: { content: string; role: 'user' | 'bot' }) => ({
+  //         text: m.content,
+  //         sender: m.role,
+  //       }))
+  //     )
+  //   }
+  // }, [open, backendMessages])
 
-  useEffect(() => {
-    if (open && chatBoxRef.current) {
-      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight
-    }
-  }, [localMessages, open])
+  // useEffect(() => {
+  //   if (open && chatBoxRef.current) {
+  //     chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight
+  //   }
+  // }, [localMessages, open])
 
   const toggleWidget = useCallback(() => {
     setOpen((prev) => !prev)
