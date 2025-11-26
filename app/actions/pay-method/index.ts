@@ -44,18 +44,16 @@ export async function createMercadoPagoPreference({
     // }
 
     /*solicitar el token refrescado*/
-
     const _refreshTokenBody = {
         client_secret: CLIENT_SECRET,
         client_id: CLIENT_ID,
         grant_type: "client_credentials",
-        code: "TG-XXXXXXXX-241983636",
-        code_verifier: "47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU",
+        code: "TG-XXXXXXXX-241983636", // optional
+        code_verifier: "47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU", //optional
         redirect_uri: NEXT_PUBLIC_BASE_URL,
-        refresh_token: "TG-XXXXXXXX-241983636",
+        refresh_token: "TG-XXXXXXXX-241983636", // optional
         test_token: false
     }
-
 
     const refreshToken = await fetch('https://api.mercadopago.com/oauth/token', {
         method: 'POST',
@@ -66,11 +64,8 @@ export async function createMercadoPagoPreference({
         body: JSON.stringify(_refreshTokenBody),
     })
 
-
     const _tokenData = await refreshToken.json()
-
     accessToken = _tokenData.access_token
-
 
     // Crear preferencia en Mercado Pago
     const body = {
@@ -99,16 +94,6 @@ export async function createMercadoPagoPreference({
         },
     }
 
-
-    // const res = await fetch('https://api.mercadopago.com/preapproval', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     Authorization: `Bearer ${accessToken}`,
-    //   },
-    //   body: JSON.stringify(body),
-    // })
-
     const res = await fetch('https://api.mercadopago.com/checkout/preferences', {
         method: 'POST',
         headers: {
@@ -118,7 +103,6 @@ export async function createMercadoPagoPreference({
         body: JSON.stringify(body),
     })
 
-    // console.log(res)
     const data = await res.json()
     if (!data.id || !data.init_point) throw new Error('No se pudo crear la suscripción de pago')
 
@@ -138,15 +122,40 @@ export async function createMercadoPagoPreference({
 }
 
 export async function updateMercadoPagoPaymentStatus({
-                                                         payment_id,
-                                                         preference_id,
-                                                     }: {
-    payment_id: string
-    preference_id: string
+  payment_id,
+  preference_id,
+}: {
+  payment_id: string
+  preference_id: string
 }) {
-    const accessToken = process.env.MP_ACCESS_TOKEN
+    let accessToken = process.env.MP_ACCESS_TOKEN
     if (!accessToken) throw new Error('Falta la variable de entorno MP_ACCESS_TOKEN')
 
+    /*solicitar el token refrescado*/
+    const _refreshTokenBody = {
+        client_secret: CLIENT_SECRET,
+        client_id: CLIENT_ID,
+        grant_type: "client_credentials",
+        code: "TG-XXXXXXXX-241983636", // optional
+        code_verifier: "47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU", //optional
+        redirect_uri: NEXT_PUBLIC_BASE_URL,
+        refresh_token: "TG-XXXXXXXX-241983636", // optional
+        test_token: false
+    }
+
+    const refreshToken = await fetch('https://api.mercadopago.com/oauth/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(_refreshTokenBody),
+    })
+
+    const _tokenData = await refreshToken.json()
+    accessToken = _tokenData.access_token
+
+    console.log('Actualizando estado de la membresia renovación');
     // Consultar el estado real del pago en Mercado Pago
     const res = await fetch(`https://api.mercadopago.com/v1/payments/${payment_id}`, {
         headers: {
@@ -154,6 +163,11 @@ export async function updateMercadoPagoPaymentStatus({
         },
     })
     const data = await res.json()
+    console.log('Respuesta de peticion de pago *******************')
+    console.log(data)
+    console.log(JSON.stringify(data))
+
+
     if (!data.id) throw new Error('No se encontró el pago en Mercado Pago')
 
     // Actualizar el registro en mercadopago_pago
@@ -177,7 +191,8 @@ export async function updateMercadoPagoPaymentStatus({
     })
 
     // Si el pago fue aprobado, renovar la membresía y registrar el pago
-    if (data.status === 'approved') {
+    // Validaciones para ver si actualiza la renovacion no puedo probar para ver la respuesta de la transaccion
+    if (data.status === 'approved' || data.status === 'OK' || data.code === '200' || data.code === '201') {
         // Obtener la membresía actual
         const membresia = await prisma.sociomembresia.findUnique({
             where: {idSocioMembresia: pago.idSocioMembresia},
