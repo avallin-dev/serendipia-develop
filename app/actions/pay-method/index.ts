@@ -43,7 +43,7 @@ export async function createMercadoPagoPreference({
     //   },
     // }
 
-    /*solicitar el token refrescado*/
+    /** Solicitar nuevo TOKEN */
     const _refreshTokenBody = {
         client_secret: CLIENT_SECRET,
         client_id: CLIENT_ID,
@@ -93,7 +93,6 @@ export async function createMercadoPagoPreference({
             idSocioMembresia,
         },
     }
-
     const res = await fetch('https://api.mercadopago.com/checkout/preferences', {
         method: 'POST',
         headers: {
@@ -102,11 +101,77 @@ export async function createMercadoPagoPreference({
         },
         body: JSON.stringify(body),
     })
-
     const data = await res.json()
     if (!data.id || !data.init_point) throw new Error('No se pudo crear la suscripción de pago')
 
-    // Registrar la suscripción como pendiente
+    /************** Para Generar QR no se debe utilizar, eliminar en ese caso ********************/
+    const qrBody= {
+        type: "qr",
+        total_amount: "50.00",
+        description: "Smartphone",
+        external_reference: "ext_ref_1234",
+        expiration_time: "PT16M",
+        marketplace_fee: "11.22",
+        integration_data: {
+            platform_id: "dev_1234567890",
+            integrator_id: "dev_1234",
+            sponsor: {
+                "id": "446566691"
+            }
+        },
+        config: {
+            qr: {
+                external_pos_id: "EXTERNALPOS019285",
+                mode: "static"
+            }
+        },
+        transactions: {
+            payments: [
+                {
+                    amount: "50.00"
+                }
+            ]
+        },
+        taxes: [
+            {
+                payer_condition: "payment_taxable_iva"
+            }
+        ],
+        items: [
+            {
+                title: "Smartphone",
+                unit_price: "50.00",
+                quantity: 1,
+                unit_measure: "kg",
+                external_code: "777489134",
+                external_categories: [
+                    {
+                        "id": "device"
+                    }
+                ]
+            }
+        ],
+        "discounts": {
+            "payment_methods": [
+                {
+                    "new_total_amount": "47.28",
+                    "type": "account_money"
+                }
+            ]
+        }
+    }
+    const qr = await fetch(' https://api.mercadopago.com/v1/orders', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(qrBody),
+    })
+    /*************** Para Generar QR no se debe utilizar, eliminar en ese caso ******************/
+
+
+    /** Registrar la suscripción como pendiente */
     await prisma.mercadopago_pago.create({
         data: {
             idSocio,
@@ -131,7 +196,7 @@ export async function updateMercadoPagoPaymentStatus({
     let accessToken = process.env.MP_ACCESS_TOKEN
     if (!accessToken) throw new Error('Falta la variable de entorno MP_ACCESS_TOKEN')
 
-    /*solicitar el token refrescado*/
+    /** refresh token */
     const _refreshTokenBody = {
         client_secret: CLIENT_SECRET,
         client_id: CLIENT_ID,
