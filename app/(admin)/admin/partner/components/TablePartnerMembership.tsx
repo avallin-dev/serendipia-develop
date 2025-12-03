@@ -50,7 +50,9 @@ export default function TablePartnerMembership({
   const [partnerMembership, setPartnerMembership] = useState<PartnerMembershipType>()
 
   const handleOnClick = (step: string, data: PartnerMembershipType) => {
-    setStep(step)
+    if (data.estadoMembresia === 'Pagada'){
+        setStep('update')
+    } else setStep(step)
     setPartnerMembership(data)
   }
   const tableContent = (
