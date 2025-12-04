@@ -24,24 +24,24 @@ export async function createMercadoPagoPreference({
     let accessToken = process.env.MP_ACCESS_TOKEN
     if (!accessToken) throw new Error('Falta la variable de entorno MP_ACCESS_TOKEN')
 
-    // Crear suscripción mensual (preapproval) en Mercado Pago
-    // const body = {
-    //   reason: nombreMembresia,
-    //   auto_recurring: {
-    //     frequency: 1,
-    //     frequency_type: 'months',
-    //     transaction_amount: monto,
-    //     currency_id: 'ARS',
-    //   },
-    //   payer_email: socioEmail,
-    //   back_url: `${NEXT_PUBLIC_BASE_URL}/profile`,
-    //   status: 'pending',
-    //   external_reference: `${idSocio}-${idSocioMembresia}`,
-    //   metadata: {
-    //     idSocio,
-    //     idSocioMembresia,
-    //   },
-    // }
+    /* Crear suscripción mensual (preapproval) en Mercado Pago
+    const body = {
+      reason: nombreMembresia,
+      auto_recurring: {
+        frequency: 1,
+        frequency_type: 'months',
+        transaction_amount: monto,
+        currency_id: 'ARS',
+      },
+      payer_email: socioEmail,
+      back_url: `${NEXT_PUBLIC_BASE_URL}/profile`,
+      status: 'pending',
+      external_reference: `${idSocio}-${idSocioMembresia}`,
+      metadata: {
+        idSocio,
+        idSocioMembresia,
+      },
+    } */
 
     /** Solicitar nuevo TOKEN */
     const _refreshTokenBody = {
