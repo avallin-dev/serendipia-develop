@@ -193,3 +193,28 @@ export async function getAllSociomemberships() {
       }))
     )
 }
+export async function getAllSociomembershipsActive() {
+  return await prisma.sociomembresia
+    .findMany({
+      include: {
+        membresia: true,
+        ctipomembresia: true,
+        socio: true,
+      }, where: {
+          idEstado: 1
+        },
+      orderBy: { Vencimiento: 'asc' },
+    })
+    .then((data) =>
+      data.map((m) => ({
+        ...m,
+        Precio: m.Precio ? Number(m.Precio) : null,
+        membresia: m.membresia
+          ? {
+              ...m.membresia,
+              Precio: m.membresia.Precio ? Number(m.membresia.Precio) : null,
+            }
+          : null,
+      }))
+    )
+}

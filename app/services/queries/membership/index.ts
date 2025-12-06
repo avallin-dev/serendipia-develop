@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 
 import {
-  getAllMemberships,
-  getMembership,
-  getMembershipPayments,
-  getPartnerMembership,
-  getPayMembership,
-  getAllSociomemberships,
+    getAllMemberships,
+    getMembership,
+    getMembershipPayments,
+    getPartnerMembership,
+    getPayMembership,
+    getAllSociomemberships, getAllSociomembershipsActive,
 } from '@/app/actions/membership'
 import {
   updateMercadoPagoPaymentStatus,
@@ -133,6 +133,26 @@ export const useAllSociomemberships = () => {
     isLoading,
     isFetching,
   }
+}
+
+export const useAllSociomembershipsActive = () => {
+    const {
+        data: sociomemberships,
+        isLoading,
+        isFetching,
+    } = useQuery({
+        queryKey: ['all-sociomemberships'],
+        queryFn: async () => {
+            const data = await getAllSociomembershipsActive()
+            return data
+        },
+    })
+
+    return {
+        sociomemberships,
+        isLoading,
+        isFetching,
+    }
 }
 
 interface Params {
