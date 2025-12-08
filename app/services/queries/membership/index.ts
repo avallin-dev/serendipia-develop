@@ -137,7 +137,7 @@ export const useAllSociomemberships = () => {
 
 export const useAllSociomembershipsActive = () => {
     const {
-        data: sociomemberships,
+        data: sociomemberships = [],
         isLoading,
         isFetching,
     } = useQuery({

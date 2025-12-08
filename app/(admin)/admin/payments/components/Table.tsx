@@ -56,7 +56,7 @@ export default function TableMembership() {
                     header: 'Socio',
                     cell: ({row}) => (
                         <div>
-                            {row.original.socio.Nombre} {row.original.socio.Paterno} {row.original.socio.Materno}
+                            {row.original.socio?.Nombre} {row.original.socio?.Paterno} {row.original.socio?.Materno}
                         </div>)
                 },
                 {
@@ -72,7 +72,7 @@ export default function TableMembership() {
                     header: 'Membresía',
                     cell: ({row}) => (
                         <div>
-                            {row.original.membresia.Nombre}
+                            {row.original.membresia?.Nombre}
                         </div>)
                 },
                 {
@@ -111,7 +111,7 @@ export default function TableMembership() {
                             <div className="flex justify-center gap-2">
                                 <Link href={{
                                     pathname: '/admin/partner',
-                                    query: {partner: row.original.socio.idSocio}
+                                    query: {partner: row.original.socio?.idSocio}
                                 }}>
                                     <Settings className="h-5 w-5 text-gray-200 fill-blue-700"/>
                                 </Link>
@@ -157,7 +157,7 @@ export default function TableMembership() {
                         onChange={(e: ChangeEvent<HTMLInputElement>) => {
                             setFilteredData(
                                 filteredData?.filter(
-                                    (d) => d.socio.DNI.toString().toLocaleLowerCase().includes(e.target.value.toLocaleLowerCase())
+                                    (d) => d.socio?.DNI?.toString().toLocaleLowerCase().includes(e.target.value.toLocaleLowerCase())
                                 )
                             )
                         }}
@@ -168,7 +168,7 @@ export default function TableMembership() {
                         onChange={(e: ChangeEvent<HTMLInputElement>) => {
                             setFilteredData(
                                 filteredData?.filter(
-                                    (d) => d.socio?.Nombre.toString().toLocaleLowerCase().includes(e.target.value.toLocaleLowerCase())
+                                    (d) => d.socio?.Nombre?.toString().toLocaleLowerCase().includes(e.target.value.toLocaleLowerCase())
                                 )
                             )
                         }}
