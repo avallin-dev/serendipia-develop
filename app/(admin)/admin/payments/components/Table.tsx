@@ -21,18 +21,25 @@ import {Button} from '@/app/components/ui/button'
 import {Input} from '@/app/components/ui/input'
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table'
 import {PartnerMembershipType} from "@/app/types/partner_membership";
-import {useAllSociomembershipsActive} from "@/app/services/queries/membership";
+import {
+    useAllSociomembershipsActive,
+    useMembershipPayments
+} from "@/app/services/queries/membership";
 import Link from "next/link"
 import {Settings} from "lucide-react"
 
 export default function TableMembership() {
     const {sociomemberships, isLoading, isFetching} = useAllSociomembershipsActive()
 
+
+
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({})
     const [filteredData, setFilteredData] = useState<PartnerMembershipType[]>([])
+
+    console.log(sociomemberships);
 
     useEffect(() => {
         if (!isLoading && sociomemberships) {
@@ -80,6 +87,15 @@ export default function TableMembership() {
                     accessorKey: 'estadoMembresia',
                     header: 'Estado',
                     cell: (info) => info.getValue(),
+                }, {
+                    id: 'FechaPago',
+                    accessorKey: 'sociomembresia_pago[0].fecha',
+                    header: 'Pago realizado',
+                    cell: ({row}) => (
+                        <div>
+                            {row.original.sociomembresia_pago && row.original.sociomembresia_pago[0].fecha && format(row.original.sociomembresia_pago[0]?.fecha, 'dd/MM/yyyy')}
+                        </div>
+                    ),
                 },
                 {
                     id: 'Importe',

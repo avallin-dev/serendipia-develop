@@ -7,7 +7,7 @@ export type PartnerMembershipType = {
     idUsuarioCreo: number | null,
     idSocio: number | null,
     idMembresia: number | null,
-    Precio: number | null,
+    Precio: Decimal | null,
     fechaInicioMembresia: Date | null,
     estadoMembresia: $Enums.sociomembresia_estadoMembresia | null
     meses: number | null,
@@ -24,7 +24,7 @@ export type PartnerMembershipType = {
         Nombre: string | null,
         idEstado: number | null,
         fechaCreacion: Date | null,
-        Precio: number | null,
+        Precio: Decimal | null,
         idUsuarioCreo: number | null,
         meses: number | null,
         horaInicio: Date | null,
@@ -59,4 +59,14 @@ export type PartnerMembershipType = {
         grupoId: number | null,
         authorization: number | null,
     } | null,
+    sociomembresia_pago: {
+        id: number,
+        observacion: string | null,
+        folio: number | null,
+        idSocioMembresia: number | null,
+        fecha: Date | null,
+        idEstado: number | null,
+        idUsuarioCreo: number | null,
+        // importe: Decimal | null,
+    }[] | null
 }
