@@ -219,6 +219,19 @@ export default function FusionPartnerMembership({
                               .split('T')[0]
                           : field.value
                       }
+                      onBlur={()=> {
+                        function newDate(value): Date {
+                          const day = new Date(value).toISOString().split('T')[0].split('-')[2];
+                          const month = new Date(value).getUTCMonth();
+                          const year = new Date(value).getFullYear();
+                          let output = new Date(year,month+1,Number(day));
+                          if (month == 11)
+                            output = new Date(year+1,0,Number(day));
+                          return output
+                        }
+
+                        form.setValue('Vencimiento', newDate(form.getValues('fechaInicioMembresia')));
+                      }}
                     />
                     <FormMessage />
                   </FormItem>

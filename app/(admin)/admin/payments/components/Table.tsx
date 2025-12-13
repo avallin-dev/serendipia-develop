@@ -39,7 +39,6 @@ export default function TableMembership() {
     const [rowSelection, setRowSelection] = useState({})
     const [filteredData, setFilteredData] = useState<PartnerMembershipType[]>([])
 
-    console.log(sociomemberships);
 
     useEffect(() => {
         if (!isLoading && sociomemberships) {
