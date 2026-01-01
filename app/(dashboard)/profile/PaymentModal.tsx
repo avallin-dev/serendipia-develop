@@ -6,6 +6,7 @@ import {useUpdatePartnerMembership} from "@/app/services/mutations/partner";
 import {useCreatePayMembership, useUpdatePayMembership} from "@/app/services/mutations/membership";
 import {useQueryClient} from "@tanstack/react-query";
 import {DataUser, Membership} from "@/app/types/payments";
+import {ICardPaymentBrickPayer, ICardPaymentFormData } from "@mercadopago/sdk-react/esm/bricks/cardPayment/type";
 
 
 /** eliminar el public key de aqui no es buena practica */
@@ -40,7 +41,7 @@ export default function PaymentModal({onClose, amount, membershipData, dataUser}
         }
     };
 
-    const onSubmit = async (formData: any) => {
+    const onSubmit = async (formData: ICardPaymentFormData<ICardPaymentBrickPayer>) => {
         const res = await fetch('/api/mercadopago/process-payment', {
             method: 'POST',
             body: JSON.stringify(formData),
