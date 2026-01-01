@@ -1,10 +1,16 @@
 'use server'
 
 import prisma from '@/app/config/db/prisma'
+import {loadMercadoPago} from "@mercadopago/sdk-js";
+import {inSitePaymentType} from "@/app/schemas/in-site-payment/inSitePayment";
 
 const NEXT_PUBLIC_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || ''
 const CLIENT_ID = process.env.CLIENT_ID || ''
 const CLIENT_SECRET = process.env.CLIENT_SECRET || ''
+const MP_PUBLIC_KEY = process.env.MP_PUBLIC_KEY || ''
+const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN || ''
+
+import * as mp from 'mercadopago';
 
 export async function createMercadoPagoPreference({
                                                       idSocio,
@@ -23,25 +29,6 @@ export async function createMercadoPagoPreference({
 }) {
     let accessToken = process.env.MP_ACCESS_TOKEN
     if (!accessToken) throw new Error('Falta la variable de entorno MP_ACCESS_TOKEN')
-
-    /* Crear suscripción mensual (preapproval) en Mercado Pago
-    const body = {
-      reason: nombreMembresia,
-      auto_recurring: {
-        frequency: 1,
-        frequency_type: 'months',
-        transaction_amount: monto,
-        currency_id: 'ARS',
-      },
-      payer_email: socioEmail,
-      back_url: `${NEXT_PUBLIC_BASE_URL}/profile`,
-      status: 'pending',
-      external_reference: `${idSocio}-${idSocioMembresia}`,
-      metadata: {
-        idSocio,
-        idSocioMembresia,
-      },
-    } */
 
     /** Solicitar nuevo TOKEN */
     const _refreshTokenBody = {
@@ -104,73 +91,6 @@ export async function createMercadoPagoPreference({
     const data = await res.json()
     if (!data.id || !data.init_point) throw new Error('No se pudo crear la suscripción de pago')
 
-    /************** Para Generar QR no se debe utilizar, eliminar en ese caso ********************/
-    const qrBody= {
-        type: "qr",
-        total_amount: "50.00",
-        description: "Smartphone",
-        external_reference: "ext_ref_1234",
-        expiration_time: "PT16M",
-        marketplace_fee: "11.22",
-        integration_data: {
-            platform_id: "dev_1234567890",
-            integrator_id: "dev_1234",
-            sponsor: {
-                "id": "446566691"
-            }
-        },
-        config: {
-            qr: {
-                external_pos_id: "EXTERNALPOS019285",
-                mode: "static"
-            }
-        },
-        transactions: {
-            payments: [
-                {
-                    amount: "50.00"
-                }
-            ]
-        },
-        taxes: [
-            {
-                payer_condition: "payment_taxable_iva"
-            }
-        ],
-        items: [
-            {
-                title: "Smartphone",
-                unit_price: "50.00",
-                quantity: 1,
-                unit_measure: "kg",
-                external_code: "777489134",
-                external_categories: [
-                    {
-                        "id": "device"
-                    }
-                ]
-            }
-        ],
-        "discounts": {
-            "payment_methods": [
-                {
-                    "new_total_amount": "47.28",
-                    "type": "account_money"
-                }
-            ]
-        }
-    }
-    const qr = await fetch(' https://api.mercadopago.com/v1/orders', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(qrBody),
-    })
-    /*************** Para Generar QR no se debe utilizar, eliminar en ese caso ******************/
-
-
     /** Registrar la suscripción como pendiente */
     await prisma.mercadopago_pago.create({
         data: {
@@ -187,11 +107,11 @@ export async function createMercadoPagoPreference({
 }
 
 export async function updateMercadoPagoPaymentStatus({
-  payment_id,
-  preference_id,
-}: {
-  payment_id: string
-  preference_id: string
+                                                         payment_id,
+                                                         preference_id,
+                                                     }: {
+    payment_id: string
+    preference_id: string
 }) {
     let accessToken = process.env.MP_ACCESS_TOKEN
     if (!accessToken) throw new Error('Falta la variable de entorno MP_ACCESS_TOKEN')
@@ -220,7 +140,6 @@ export async function updateMercadoPagoPaymentStatus({
     const _tokenData = await refreshToken.json()
     accessToken = _tokenData.access_token
 
-    console.log('Actualizando estado de la membresia renovación');
     // Consultar el estado real del pago en Mercado Pago
     const res = await fetch(`https://api.mercadopago.com/v1/payments/${payment_id}`, {
         headers: {
@@ -228,10 +147,6 @@ export async function updateMercadoPagoPaymentStatus({
         },
     })
     const data = await res.json()
-    console.log('Respuesta de peticion de pago *******************')
-    console.log(data)
-    console.log(JSON.stringify(data))
-
 
     if (!data.id) throw new Error('No se encontró el pago en Mercado Pago')
 
@@ -319,3 +234,100 @@ export async function validateMercadoPagoSubscription({
         raw: data,
     }
 }
+
+/** @description Integracion en la misma pagina sin redirección
+ * @param MERCADO_PAGO_PUBLIC_KEY {string}
+ * @param MERCADO_PAGO_ACCESS_TOKEN {string}
+ * @description necesarios para refrescar MERCADO_PAGO_ACCESS_TOKEN antes de realizar la petición
+ * @param CLIENT_ID {string}
+ * @param CLIENT_SECRET {string}
+ * @return devuelve uno de los posibles estados  "Pendiente", "Rechazado" o "Aprobado"
+ * */
+
+async function inSitePayments(values: inSitePaymentType): Promise<string> {
+
+    const mercadopago = mp
+    console.log(values)
+
+    if (!MP_PUBLIC_KEY) {
+        console.log("Error: public key not defined");
+        process.exit(1);
+    }
+
+    /** necesario refrescar y volver a generar token lo mas probable*/
+    if (!MP_ACCESS_TOKEN) {
+        console.log("Error: access token not defined");
+        process.exit(1);
+    }
+
+    /** @description generar card token para pago seguro
+     * @param CardNumber {string}
+     * @param CVV {string}
+     * @param ExpirationDate {Date}
+     *  */
+
+
+    const client = new mercadopago.MercadoPagoConfig({
+        accessToken: MP_ACCESS_TOKEN,
+    });
+
+    const payment = new mercadopago.Payment(client);
+
+
+
+
+    /** FORMULARIOS PARA CARD TOKEN */
+    const form = {
+        id: "form-checkout",
+        cardholderName: {
+            id: "form-checkout__cardholderName",
+            placeholder: "Holder name",
+        },
+        cardholderEmail: {
+            id: "form-checkout__cardholderEmail",
+            placeholder: "E-mail",
+        },
+        cardNumber: {
+            id: "form-checkout__cardNumber",
+            placeholder: "Card number",
+            style: {
+                fontSize: "1rem"
+            },
+        },
+        expirationDate: {
+            id: "form-checkout__expirationDate",
+            placeholder: "MM/YYYY",
+            style: {
+                fontSize: "1rem"
+            },
+        },
+        securityCode: {
+            id: "form-checkout__securityCode",
+            placeholder: "Security code",
+            style: {
+                fontSize: "1rem"
+            },
+        },
+        installments: {
+            id: "form-checkout__installments",
+            placeholder: "Installments",
+        },
+        identificationType: {
+            id: "form-checkout__identificationType",
+        },
+        identificationNumber: {
+            id: "form-checkout__identificationNumber",
+            placeholder: "Identification number",
+        },
+        issuer: {
+            id: "form-checkout__issuer",
+            placeholder: "Issuer",
+        },
+    };
+
+
+
+    return "promise status"
+}
+
+export default inSitePayments

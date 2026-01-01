@@ -59,14 +59,15 @@ export type PartnerMembershipType = {
         grupoId: number | null,
         authorization: number | null,
     } | null,
-    sociomembresia_pago: {
-        id: number,
-        observacion: string | null,
-        folio: number | null,
-        idSocioMembresia: number | null,
-        fecha: Date | null,
-        idEstado: number | null,
-        idUsuarioCreo: number | null,
-        // importe: Decimal | null,
-    }[] | null
+    // sociomembresia_pago: {
+    //     id: number,
+    //     observacion: string | null,
+    //     folio: number | null,
+    //     idSocioMembresia: number | null,
+    //     fecha: Date | null,
+    //     idEstado: number | null,
+    //     idUsuarioCreo: number | null,
+    //     // importe: Decimal | null,
+    // }[] | null
+    FechaPago: DateTime
 }

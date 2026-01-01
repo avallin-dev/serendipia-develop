@@ -13,7 +13,7 @@ import {
     VisibilityState,
 } from '@tanstack/react-table'
 import {format} from 'date-fns'
-import {ChangeEvent, useEffect, useMemo, useState} from 'react'
+import React, {ChangeEvent, useEffect, useMemo, useState} from 'react'
 import {MdArrowDownward, MdArrowUpward} from 'react-icons/md'
 
 import TablesLoading from '@/app/components/TablesLoading'
@@ -21,22 +21,22 @@ import {Button} from '@/app/components/ui/button'
 import {Input} from '@/app/components/ui/input'
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table'
 import {PartnerMembershipType} from "@/app/types/partner_membership";
-import {
-    useAllSociomembershipsActive,
-    useMembershipPayments
-} from "@/app/services/queries/membership";
+import {useAllSociomembershipsActive} from "@/app/services/queries/membership";
 import Link from "next/link"
 import {Settings} from "lucide-react"
+import {Label} from "@/components/ui/label";
+import {toast} from "sonner"
 
 export default function TableMembership() {
     const {sociomemberships, isLoading, isFetching} = useAllSociomembershipsActive()
-
-
-
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({})
+    const [startDate, setstartDate] = useState(new Date(Date.now()));
+    const [endDate, setendDate] = useState(new Date(Date.now()));
+    const [dni, setDNI] = useState<number>(0x00000)
+    const [name, setName] = useState<string>('nombre')
     const [filteredData, setFilteredData] = useState<PartnerMembershipType[]>([])
 
 
@@ -88,11 +88,11 @@ export default function TableMembership() {
                     cell: (info) => info.getValue(),
                 }, {
                     id: 'FechaPago',
-                    accessorKey: 'sociomembresia_pago[0].fecha',
+                    accessorKey: 'FechaPago',
                     header: 'Pago realizado',
                     cell: ({row}) => (
                         <div>
-                            {row.original.sociomembresia_pago && row.original.sociomembresia_pago[0].fecha && format(row.original.sociomembresia_pago[0]?.fecha, 'dd/MM/yyyy')}
+                            {!!row.getValue('FechaPago') && format(row.getValue('FechaPago'), 'dd/MM/yyyy')}
                         </div>
                     ),
                 },
@@ -162,43 +162,90 @@ export default function TableMembership() {
         return <TablesLoading/>
     }
 
+    function initData() {
+        setFilteredData(sociomemberships)
+    }
+
     return (
         <div className="w-full">
             <div className="flex items-center justify-between gap-x-4 py-4">
-                <div className="flex items-center gap-x-4 py-4">
-                    <Input
-                        placeholder="Buscar por DNI.."
-                        className="max-w-60"
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                            setFilteredData(
-                                filteredData?.filter(
-                                    (d) => d.socio?.DNI?.toString().toLocaleLowerCase().includes(e.target.value.toLocaleLowerCase())
+                <div className="flex items-center gap-x-8 py-4">
+                    <div className={'flex flex-col gap-2'}>
+                        <Label htmlFor='FindDNI'>Buscar por DNI de Socio</Label>
+                        <Input
+                            placeholder="35695147"
+                            id='FindDNI'
+                            className="max-w-60"
+                            onInput={(e: ChangeEvent<HTMLInputElement>) => {
+                                setDNI(Number(e.target.value))
+                                initData()
+                                setFilteredData(
+                                    filteredData?.filter(
+                                        (d) => d.socio?.DNI?.toString().toLocaleLowerCase().includes(e.target.value.toLocaleLowerCase())
+                                    )
                                 )
-                            )
-                        }}
-                    />
-                    <Input
-                        placeholder="Buscar por Socio.."
-                        className="max-w-60"
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                            setFilteredData(
-                                filteredData?.filter(
-                                    (d) => d.socio?.Nombre?.toString().toLocaleLowerCase().includes(e.target.value.toLocaleLowerCase())
+                            }}
+                        /></div>
+                    <div className={'flex flex-col gap-2'}>
+                        <Label htmlFor='FindSocio'>Buscar por Nombre de Socio</Label>
+                        <Input
+                            placeholder="262518523.."
+                            id='FindSocio'
+                            className="w-[200px] py-0 px-1"
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                setName(e.target.value)
+                                initData()
+                                setFilteredData(
+                                    filteredData?.filter(
+                                        (d) => d.socio?.Nombre?.toString().toLocaleLowerCase().includes(e.target.value.toLocaleLowerCase())
+                                    ).filter((s)=> s.FechaPago > startDate)
                                 )
-                            )
-                        }}
-                    />
-                    <Input
-                        placeholder="Buscar por Fecha.."
-                        className="max-w-60"
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                            setFilteredData(
-                                filteredData?.filter(
-                                    (d) => format(d.Vencimiento, 'dd/MM/yyyy').toString().toLocaleLowerCase().includes(e.target.value.toLocaleLowerCase())
-                                )
-                            )
-                        }}
-                    />
+                            }}
+                        />
+                    </div>
+                    <div className={'flex flex-col gap-2'}>
+                        <Label htmlFor='DatePickerInput'
+                               className={'flex justify-center items-center'}>
+                            Seleccionar Rango de Fechas
+                        </Label>
+                        <div className="flex items-center gap-x-4 flex-row" id='DatePickerInput'>
+
+                            <Input
+                                placeholder="Buscar por Fecha.."
+                                type='date'
+                                value={format(startDate, 'yyyy-MM-dd')}
+                                className="max-w-120"
+                                max={format(new Date(Date.now()), 'yyyy-MM-dd')}
+                                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                    setstartDate(new Date(e.target.value))
+                                    initData()
+                                    setFilteredData(
+                                        filteredData?.filter(d =>
+                                            d.FechaPago > new Date(e.target.value)
+                                        )
+                                    )
+
+                                }}
+                            />
+                            <Input
+                                placeholder="Buscar por Fecha.."
+                                type='date'
+                                value={format(endDate, 'yyyy-MM-dd')}
+                                max={format(new Date(Date.now()), 'yyyy-MM-dd')}
+                                className="max-w-120"
+                                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                    setendDate(new Date(e.target.value))
+                                    initData()
+                                    setFilteredData(
+                                        filteredData.filter(
+                                            (d) =>
+                                                d.FechaPago < new Date(e.target.value)
+                                        )
+                                    )
+                                }}
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
             <div className="w-full overflow-x-auto rounded-md shadow-md">
@@ -247,12 +294,16 @@ export default function TableMembership() {
                                 </TableRow>
                             ))
                         ) : (
-                            <TableRow>
-                                <TableCell colSpan={columns.length}
-                                           className="text-center text-chicago-600">
-                                    Sin resultados
-                                </TableCell>
-                            </TableRow>
+                            toast.info('No existen datos con los parámetros seleccionados. ' + 'Se muestran todos los datos')
+                            // filteredData.length== 0 ? toast.success('No existen datos con esos parámetros') : ''
+
+                            // <TableRow>
+                            //     <TableCell colSpan={columns.length}
+                            //                className="text-center text-chicago-600">
+                            //         Sin resultados
+                            //     </TableCell>
+                            //
+                            // </TableRow>
                         )}
                     </TableBody>
                 </Table>
@@ -280,3 +331,5 @@ export default function TableMembership() {
         </div>
     )
 }
+
+

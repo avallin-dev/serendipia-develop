@@ -214,6 +214,7 @@ export async function getAllSociomembershipsActive() {
             data.map((m) => ({
                     ...m,
                     Precio: m.Precio ? Number(m.Precio) : null,
+                    FechaPago: m.sociomembresia_pago.map((detalle) => ({detalle: detalle.fecha}))[0].detalle,
                     membresia: m.membresia
                         ? {
                             ...m.membresia,
