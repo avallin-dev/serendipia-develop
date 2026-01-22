@@ -11,7 +11,7 @@ import {
   renewPartnerMembership,
   addMember,
   removeMember,
-  deletePartnerPic,
+  deletePartnerPic, updateClassAvailable,
 } from '@/app/actions/partner'
 
 export function useCreatePartner() {
@@ -44,6 +44,12 @@ export function useUpdatePartnerMembership() {
   return useMutation({
     mutationFn: ({ data, id }: { data: Partial<sociomembresia>; id: number }) =>
       updatePartnerMembership(id, data),
+  })
+}
+
+export function useUpdateClassAvailable() {
+  return useMutation({
+    mutationFn: ({idSocioMembresia}: { idSocioMembresia: number | undefined }) => updateClassAvailable(idSocioMembresia)
   })
 }
 

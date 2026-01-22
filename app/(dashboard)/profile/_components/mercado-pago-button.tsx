@@ -1,4 +1,4 @@
-'use client'
+    'use client'
 
 import React from 'react'
 import {useMercadoPagoPreferenceMutation} from '@/app/services/mutations/mercado-pago'
@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select'
 import PaymentButton from "@/app/(dashboard)/profile/_components/paymentButton";
 import {DataUser, Membership} from "@/app/types/payments";
+import {usePartnerWithPilates} from "@/app/services/queries/partner";
 
 interface MercadoPagoButtonProps {
     idSocio: number
@@ -53,6 +54,11 @@ export default function MercadoPagoButton({
         socioNombre: socioNombre,
         socioEmail: socioEmail,
     }
+
+    console.log(dataUser.idSocio)
+    const { partners } = usePartnerWithPilates()
+    const  t = partners.filter(p=> p.idSocio == dataUser.idSocio)
+    console.log(t)
 
     const handlePay = () => {
         nombreMembresia = dataMembership.nombreMembresia

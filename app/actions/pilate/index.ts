@@ -15,6 +15,7 @@ import { es } from 'date-fns/locale'
 import prisma from '@/app/config/db/prisma'
 import { pilateSchmaType, pilateFullSchmaType } from '@/app/schemas/pilate'
 import { getUserIdFromToken } from '@/app/utils/auth'
+import {setupPilatesDisponibles} from "@/scripts/setupPilatesDisponibles";
 
 export type PartnerByIdType = {
   Nombre: string | null
@@ -102,6 +103,9 @@ export async function createPilate(data: pilateSchmaType) {
       },
     },
   })
+
+  /** @description puede que sea necesario evitar que se realice este Update */
+    await setupPilatesDisponibles();
 
   const membership = partner?.sociomembresia[0]
   if (

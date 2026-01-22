@@ -5,6 +5,7 @@ import Image from 'next/image'
 
 import { AuthProvider } from '@/app/context/AuthProvider'
 import Sidebar from '@/components/Sidebar'
+import Widget from "@/components/widget";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient({
@@ -69,10 +70,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ]
 
   return (
+    
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
         <Sidebar menuElements={menuElements}>{children}</Sidebar>
         <audio id="stop" src="/audio/stop.mp3" preload="auto" muted={false}></audio>
+        <Widget/>
       </QueryClientProvider>
     </AuthProvider>
   )
